@@ -11,7 +11,6 @@ const resolvers = {
           .populate('books');
         return userData;
       }
-
       throw new AuthenticationError('Not logged in');
     },
   },
