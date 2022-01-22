@@ -34,11 +34,9 @@ const LoginForm = () => {
       });
       
       Auth.login(data.login.token);
-      // const { token, user } = await response.json();
-      // console.log(user);
     } catch (err) {
       console.error(err);
-      setShowAlert(true);
+     // setShowAlert(true);
     }
 
     setUserFormData({
