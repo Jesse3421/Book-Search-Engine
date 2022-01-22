@@ -5,7 +5,6 @@ import { useMutation, useQuery } from '@apollo/client';
 import { REMOVE_BOOK } from '../utils/mutations';
 import { GET_ME } from '../utils/queries';
 
-
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
@@ -27,8 +26,16 @@ const SavedBooks = () => {
     }
 
     try {
-      const { data } = await removeBook({
-        variables: { bookId }
+      await removeBook({
+        variables: { bookId: bookId },
+        update: cache => {
+          const data = cache.readQuery({ query: GET_ME });
+          const userDataCache = data.me;
+          const savedBooksCache = userDataCache.savedBooks;
+          const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId); //
+          data.me.savedBooks = updatedBookCache;
+          cache.writeQuery({ query: GET_ME, data: {data: {...data.me.savedBooks}}})
+        }
       });
 
 
