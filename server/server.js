@@ -21,7 +21,7 @@ const app = express();
   
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
-  app.use(routes);
+  
   
   // Serve up static assets
   if (process.env.NODE_ENV === 'production') {
