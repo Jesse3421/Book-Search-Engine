@@ -7,7 +7,7 @@ import SavedBooks from './pages/SavedBooks';
 import Navbar from './components/Navbar';
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3001/graphql',
+  uri: process.env.NODE_ENV === 'production' ? '/graphql' : 'http://localhost:3001/graphql',
 });
 
 const authLink = setContext((_, { headers }) => {
