@@ -25,19 +25,8 @@ const SearchBooks = () => {
     }
   });
 
-  const [saveBook, { error }] = useMutation(SAVE_BOOK, {
-    update(cache, {data: { saveBook } }) {
-      try {
-        const { me } = cache.readQuery({ query: GET_ME });
-        cache.writeQuery({
-          query: GET_ME,
-          data: {savedBooks: [saveBook, ...Book]}
-        });
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  });
+  const [saveBook, { error }] = useMutation(SAVE_BOOK)
+
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -83,20 +72,9 @@ const SearchBooks = () => {
       return false;
     }
 
-    try {
-      await saveBook ({
-          variables: { input: bookToSave },
-          update: cache => {
-              const { me } = cache.readQuery({ query: GET_ME });
-              cache.writeQuery({
-                  query: GET_ME,
-                  data: {me: {...me, savedBooks: [...me.savedBooks, bookToSave]}}})
-              }})
-              
-            // const { bookId } = 
-            // await saveBook({
-            //   variables: {input: bookToSave },
-            // });
+    try {   await saveBook({
+              variables: {input: bookToSave },
+            });
     
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
