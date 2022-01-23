@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://jesse3421:password1234@cluster0.dtpei.mongodb.net/BookSearchEngineDB?retryWrites=true&w=majority',
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/book-search-engine',
 {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -8,4 +8,3 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://jesse3421:password123
 
 module.exports = mongoose.connection;
 
-//'mongodb://localhost:27017/book-search-engine'
