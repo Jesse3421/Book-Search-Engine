@@ -20,11 +20,24 @@ const SearchBooks = () => {
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
-    return () => saveBookIds(savedBookIds);
+    return () => {
+      saveBookIds(savedBookIds);
+    }
   });
-  
-  //destructure the mutation function
-  const [saveBook, { error }] = useMutation(SAVE_BOOK);
+
+  const [saveBook, { error }] = useMutation(SAVE_BOOK, {
+    update(cache, {data: { saveBook } }) {
+      try {
+        const { me } = cache.readQuery({ query: GET_ME });
+        cache.writeQuery({
+          query: GET_ME,
+          data: {savedBooks: [saveBook, ...Book]}
+        });
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  });
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -71,21 +84,19 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await saveBook({
-        variables: {
-          book: bookToSave
-
-        },
-      });
-      // await saveBook ({
-      //   variables: { book: bookToSave },
-      //   update: cache => {
-      //     const {me} = cache.readQuery({ query: GET_ME });
-      //     cache.writeQuery({
-      //       query: GET_ME,
-      //       data: {me: {...me, savedBooks: [...me.savedBooks, bookToSave]}}})
-      //   }
-      // });
+      await saveBook ({
+          variables: { input: bookToSave },
+          update: cache => {
+              const { me } = cache.readQuery({ query: GET_ME });
+              cache.writeQuery({
+                  query: GET_ME,
+                  data: {me: {...me, savedBooks: [...me.savedBooks, bookToSave]}}})
+              }})
+              
+            // const { bookId } = 
+            // await saveBook({
+            //   variables: {input: bookToSave },
+            // });
     
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);

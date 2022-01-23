@@ -1,63 +1,63 @@
 import React from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
-
 import { useMutation, useQuery } from '@apollo/client';
-import { REMOVE_BOOK } from '../utils/mutations';
-import { GET_ME } from '../utils/queries';
-
 import Auth from '../utils/auth';
 import { removeBookId, saveBookIds } from '../utils/localStorage';
+import { GET_ME } from '../utils/queries';
+import { REMOVE_BOOK } from '../utils/mutations';
 
-//import { getMe, deleteBook } from '../utils/API';
+
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
-  const userData = data?.me || {};
+  const userData = data?.me || [];
   const [removeBook, { error }] = useMutation(REMOVE_BOOK);
   
-
+  
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
-
+    
     if (!token) {
       return false;
     }
-
+    
     try {
-      const response = await removeBook({
-        variables: { bookId: bookId },
-      });
-      // await removeBook({
-      //   variables: { bookId: bookId },
-      //   update: cache => {
-      //     const data = cache.readQuery({ query: GET_ME });
-      //     const userDataCache = data.me;
-      //     const savedBooksCache = userDataCache.savedBooks;
-      //     const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId); //
-      //     data.me.savedBooks = updatedBookCache;
-      //     cache.writeQuery({ query: GET_ME, data: {data: {...data.me.savedBooks}}})
-      if (!response){
-        throw new Error("Something went wrong!");
+      // const { data } = await removeBook({
+      //   variables: { bookId: bookId }
+      // });
+      // console.log(data)
+      
+      await removeBook({
+          variables: {bookId: bookId},
+          update: cache => {
+              const data = cache.readQuery({ query: GET_ME });
+              const userDataCache = data.me;
+              const savedBooksCache = userDataCache.savedBooks;
+              const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
+              data.me.savedBooks = updatedBookCache;
+              cache.writeQuery({ query: GET_ME , data: {data: {...data.me.savedBooks}}})
+            },
+          })
+          removeBookId(bookId);
+          
+          // upon success, remove book's id from localStorage
+        } catch (err) {
+          console.error(error);
+        }
+      };
+      
+      // if data isn't here yet, say so
+      if (loading) {
+        return <h2>LOADING...</h2>;
       }
-
-      // upon success, remove book's id from localStorage
-      removeBookId(bookId);
-    } catch (err) {
-      console.error(error);
-    }
-  };
-
-  // if data isn't here yet, say so
-  if (loading) {
-    return <h2>LOADING...</h2>;
-  }
-   // sync localStorage with what was returned from the userData query
-   const savedBookIds = userData.savedBooks.map((book) => book.bookId);
-   saveBookIds(savedBookIds);
-
-  return (
-    <>
+      
+      // // // sync localStorage with what was returned from the userData query
+       const savedBookIds = userData.savedBooks.map((book) => book.bookId);
+        saveBookIds(savedBookIds);
+      
+      return (
+        <>
       <Jumbotron fluid className='text-light bg-dark'>
         <Container>
           <h1>Viewing saved books!</h1>
@@ -67,7 +67,7 @@ const SavedBooks = () => {
         <h2>
           {userData.savedBooks.length
             ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
-            : 'You have no saved books!'}
+            : 'You have no saved books!'} 
         </h2>
         <CardColumns>
           {userData.savedBooks.map((book) => {
