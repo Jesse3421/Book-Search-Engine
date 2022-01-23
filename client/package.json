@@ -1,7 +1,7 @@
 {
   "name": "client",
   "version": "0.1.0",
-  "homepage": ".",
+  "homepage": "https://powerful-cliffs-33480.herokuapp.com/",
   "private": true,
   "proxy": "http://localhost:3001",
   "dependencies": {
